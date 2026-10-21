@@ -732,7 +732,7 @@
     <string name="chat_committee_topic">Assunto</string>
     <string name="chat_committee_members">Participantes (pelo menos 2)</string>
     <string name="chat_committee_start">Iniciar discussão</string>
-    <string name="knowledge_fts_repaired_partial_with_reason">Índice de pesquisa parcialmente reparado: %1$s</string>
+    <string name="knowledge_fts_repaired_partial_with_reason">Índice reparado, mas houve falha ao reindexar %1$d documentos: %2$s</string>
     <string name="knowledge_doc_index_broken">O índice do documento está danificado</string>
     <string name="task_card_pause">Pausar ferramentas pendentes</string>
     <string name="task_card_resume">Retomar ferramentas pendentes</string>
