@@ -13,6 +13,8 @@ on:
       - 'app/src/main/java/io/zer0/muse/intent/**'
       - 'app/src/test/java/io/zer0/muse/intent/**'
       - 'ci/script/check_ptbr_resources.py'
+      - 'tools/runtime-pack/build-runtime-pack.sh'
+      - 'tools/python-pack/build-python-pack.sh'
   workflow_dispatch:
 
 permissions:
@@ -44,12 +46,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Build Web Host UI assets
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
       - name: Build embedded runtime assets
         run: |
           sudo apt-get update
           sudo apt-get install -y patchelf
           bash tools/runtime-pack/build-runtime-pack.sh arm64
           bash tools/python-pack/build-python-pack.sh arm64
+          test -f app/src/main/jniLibs/arm64-v8a/libmuse_node.so
+          test -f app/src/main/jniLibs/arm64-v8a/libpython3.14.so
+          test -f app/src/main/assets/muse-runtime-assets.zip
+          test -f app/src/main/assets/muse-python-assets.zip
       - name: Prepare Gradle
         run: chmod +x ./gradlew
       - name: Compile ARM64 debug APK
