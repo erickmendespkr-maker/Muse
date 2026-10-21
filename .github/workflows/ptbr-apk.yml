@@ -46,9 +46,14 @@ jobs:
             SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
             SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
             test -x "$SDKMANAGER" || { echo "Android sdkmanager missing at $SDKMANAGER" >&2; exit 1; }
+            export PATH="$SDK_ROOT/cmdline-tools/latest/bin:$PATH"
             echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
           fi
-          yes | sdkmanager --licenses >/dev/null || test "${PIPESTATUS[1]}" -eq 0
+          set +o pipefail
+          yes | sdkmanager --licenses >/dev/null
+          result=${PIPESTATUS[1]}
+          set -o pipefail
+          test "$result" -eq 0
       - name: Install Android components
         run: |
           sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973" "cmake;3.22.1"
