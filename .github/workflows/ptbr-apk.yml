@@ -1,7 +1,18 @@
-name: Muse PT-BR APK (manual)
+# Build on the isolated translation branch; main remains unchanged.
+name: Muse PT-BR APK
 
-# Manual only: avoid consuming GitHub Actions minutes automatically.
+# A workflow_dispatch-only workflow cannot be manually started until it exists
+# on the default branch. Branch-scoped push enables an immediate isolated build.
 on:
+  push:
+    branches:
+      - audit/security-ptbr
+    paths:
+      - '.github/workflows/ptbr-apk.yml'
+      - 'app/src/main/res/**'
+      - 'app/src/main/java/io/zer0/muse/intent/**'
+      - 'app/src/test/java/io/zer0/muse/intent/**'
+      - 'ci/script/check_ptbr_resources.py'
   workflow_dispatch:
 
 permissions:
@@ -26,7 +37,7 @@ jobs:
         uses: android-actions/setup-android@v3
       - name: Install Android components
         run: |
-          sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973" "cmake;3.22.1"
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973" "cmake;3.22.1"
       - name: Check pt-BR resources
         run: python3 ci/script/check_ptbr_resources.py
       - name: Set up Node.js for embedded runtime
@@ -37,8 +48,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y patchelf
-          bash tools/runtime-pack/build-runtime-pack.sh both
-          bash tools/python-pack/build-python-pack.sh both
+          bash tools/runtime-pack/build-runtime-pack.sh arm64
+          bash tools/python-pack/build-python-pack.sh arm64
       - name: Prepare Gradle
         run: chmod +x ./gradlew
       - name: Compile ARM64 debug APK
@@ -47,5 +58,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: muse-ptbr-debug-apks
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/*arm64-v8a*.apk
           if-no-files-found: error
