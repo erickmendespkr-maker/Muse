@@ -21,7 +21,7 @@ O script verifica todos os `strings*.xml` em `values`, `values-en` e `values-pt-
 
 ## Gerar APK debug localmente (sem GitHub Actions)
 
-Requisitos: JDK 17, Android SDK e NDK/CMake compatíveis com o projeto, dependências Gradle baixadas e espaço em disco suficiente. O app inclui componentes auxiliares Android; a primeira compilação pode demorar.
+Requisitos: JDK 21, Android SDK e NDK/CMake compatíveis com o projeto, dependências Gradle baixadas e espaço em disco suficiente. O app inclui componentes auxiliares Android; a primeira compilação pode demorar.
 
 Linux/macOS:
 
