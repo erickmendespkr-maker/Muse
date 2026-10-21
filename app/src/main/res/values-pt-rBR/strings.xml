@@ -1,6 +1,6 @@
 <resources>
     <!-- App -->
-    <string name="app_name">Musa</string>
+    <string name="app_name">Muse</string>
     <!-- Splash -->
 
     <!-- Widget -->
@@ -10,8 +10,8 @@
     <!-- P3-16: 4x2 chat widget -->
     <string name="widget_chat_description">Mostrar a resposta mais recente da IA</string>
     <string name="widget_chat_no_content">Nenhuma conversa ainda, toque para começar</string>
-    <string name="widget_launcher_title">Musa</string>
-    <string name="widget_launcher_open">Abrir Musa</string>
+    <string name="widget_launcher_title">Muse</string>
+    <string name="widget_launcher_open">Abrir Muse</string>
 
     <!-- Bottom navigation -->
 
@@ -40,12 +40,12 @@
     <string name="proxy_disabled">Desabilitado</string>
     <string name="proxy_type">Tipo</string>
     <string name="proxy_type_http">HTTP</string>
-    <string name="proxy_type_socks5">MEIAS5</string>
-    <string name="proxy_host">Hospedar</string>
+    <string name="proxy_type_socks5">SOCKS5</string>
+    <string name="proxy_host">Servidor</string>
     <string name="proxy_port">Porta</string>
     <string name="proxy_username">Nome de usuário</string>
     <string name="proxy_password">Senha</string>
-    <string name="proxy_restart_hint">Reinicie o aplicativo para entrar em vigor</string>
+    <string name="proxy_restart_hint">Reinicie o aplicativo para aplicar as alterações</string>
     <string name="action_save">Salvar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_delete">Excluir</string>
@@ -53,20 +53,20 @@
     <string name="action_close">Fechar</string>
     <string name="action_more">Mais</string>
     <string name="action_send">Enviar</string>
-    <string name="action_copy">Cópia</string>
+    <string name="action_copy">Copiar</string>
     <string name="action_share">Compartilhar</string>
     <string name="action_expand">Expandir</string>
-    <string name="action_collapse">Colapso</string>
+    <string name="action_collapse">Recolher</string>
 
     <!-- Quote reply -->
     <string name="message_action_quote">Citar</string>
-    <string name="quote_label_user">Cotar usuário</string>
-    <string name="quote_label_assistant">Assistente de cotação</string>
-    <string name="quote_clear">Cancelar cotação</string>
+    <string name="quote_label_user">Citando usuário</string>
+    <string name="quote_label_assistant">Citando assistente</string>
+    <string name="quote_clear">Remover citação</string>
 
     <!-- Edit message sheet -->
     <string name="edit_message_title">Editar mensagem</string>
-    <string name="edit_message_content_label">Contente</string>
+    <string name="edit_message_content_label">Conteúdo</string>
 
     <!-- Recording / speech recognition status -->
 <string name="voice_release_to_recognize">Solte para reconhecer · deslize para cima para cancelar</string>
@@ -75,7 +75,7 @@
 <string name="voice_reconnecting">Erro de rede, reconectando…</string>
 
 <!-- 前端修复 (i18n-6): stop button a11y label on voice message bar -->
-<string name="voice_stop_recording">Stop recording</string>
+<string name="voice_stop_recording">Parar gravação</string>
     <string name="voice_conversation_cd_idle">Toque para iniciar a conversa</string>
     <string name="voice_conversation_cd_listening">Gravando, toque para interromper</string>
     <string name="voice_conversation_cd_thinking">IA pensando, toque para interromper</string>
