@@ -40,11 +40,11 @@ TERMUX_BASE="https://packages.termux.dev/apt/termux-main/pool/main"
 NODE_VER="24.18.0-1"
 LIBCXX_VER="30"
 OPENSSL_VER="1%3A3.6.3"   # URL 中 ':' 需转义为 %3A
-CARES_VER="1.34.8"
+CARES_VER="1.34.9"
 ICU_VER="78.3"
 SQLITE_VER="3.53.4"
 ZLIB_VER="1.3.2"
-NPM_VER="11.20.0"
+NPM_VER="11.21.1"
 
 # ─── 文件映射：源实体文件名 -> 输出名（jniLibs 只接受 lib*.so 命名） ────────
 declare -A FILEMAP=(
@@ -77,6 +77,7 @@ declare -A NEEDMAP=(
 # ─── Termux 包 URL 解析 ─────────────────────────────────────────────────────
 pkg_url() { # $1=包 key  $2=abi(arm64|x86_64|all)
   local key="$1" abi="$2"
+  [ "$abi" != "arm64" ] || abi="aarch64"
   case "$key" in
     nodejs-lts) echo "$TERMUX_BASE/n/nodejs-lts/nodejs-lts_${NODE_VER}_${abi}.deb" ;;
     libcxx)     echo "$TERMUX_BASE/libc/libc%2B%2B/libc%2B%2B_${LIBCXX_VER}_${abi}.deb" ;;
@@ -93,7 +94,7 @@ pkg_url() { # $1=包 key  $2=abi(arm64|x86_64|all)
 fetch_deb() { # $1=包 key $2=abi $3=目标文件
   if [ ! -f "$3" ]; then
     echo "  下载 $1 ($2) ..."
-    curl -sSL --retry 3 --connect-timeout 20 -o "$3" "$(pkg_url "$1" "$2")"
+    curl -fSL --retry 3 --connect-timeout 20 -o "$3" "$(pkg_url "$1" "$2")"
   fi
 }
 
