@@ -21,19 +21,29 @@ O script verifica todos os `strings*.xml` em `values`, `values-en` e `values-pt-
 
 ## Gerar APK debug localmente (sem GitHub Actions)
 
-Requisitos: JDK 21, Android SDK e NDK/CMake compatíveis com o projeto, dependências Gradle baixadas e espaço em disco suficiente. O app inclui componentes auxiliares Android; a primeira compilação pode demorar.
+Requisitos: JDK 21, Android SDK 36, Build Tools 36.0.0, NDK 27.0.12077973, CMake 3.22.1, Node.js 22, Python 3 e `patchelf` (Linux/WSL). A primeira compilação pode demorar; os pacotes nativos precisam ser baixados de fontes externas. A configuração equivalente está em `.github/workflows/ptbr-apk.yml`.
 
 Linux/macOS:
 
 ```bash
+python3 ci/script/check_ptbr_resources.py
+(cd web && npm ci && npm run build)
+bash tools/runtime-pack/build-runtime-pack.sh arm64
+bash tools/python-pack/build-python-pack.sh arm64
 chmod +x ./gradlew
-./gradlew :app:assembleDebug -PnoUniversal --stacktrace
+./gradlew :app:assembleDebug -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
 ```
 
 Windows PowerShell:
 
 ```powershell
-.\gradlew.bat :app:assembleDebug -PnoUniversal --stacktrace
+python ci/script/check_ptbr_resources.py
+cd web
+npm ci
+npm run build
+cd ..
+# Prepare os runtimes Node/Python via WSL/Linux antes de compilar.
+.\gradlew.bat :app:assembleDebug -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
 ```
 
 O Gradle pode exigir primeiro a compilação dos módulos auxiliares; siga os erros de dependências e tarefas que ele reportar. Verifique o resultado em `app/build/outputs/apk/debug/`. Como o projeto divide por ABI, para aparelhos ARM64 escolha o APK `arm64-v8a`. **Não instale arquivos de origem desconhecida sem revisar a assinatura e as permissões.**
@@ -52,4 +62,5 @@ O Gradle pode exigir primeiro a compilação dos módulos auxiliares; siga os er
 - Um APK debug **não** é uma versão final assinada.
 - O `assembleRelease` requer keystore própria e versionamento explícito. Não use chave de depuração como assinatura de produção.
 - Este documento não atesta que o APK compila nem que a tradução está visualmente completa.
-- GitHub Actions não é necessário para o teste local; pode ser usado futuramente se houver cota disponível.
+- GitHub Actions não é necessário para o teste local; o workflow `ptbr-apk.yml` tenta compilar automaticamente na branch isolada quando há minutos de execução disponíveis.
+- A compilação local requer os arquivos `muse-runtime-assets.zip`, `muse-python-assets.zip` e bibliotecas nativas ARM64; executar somente o Gradle pode produzir um APK sem esses recursos.
