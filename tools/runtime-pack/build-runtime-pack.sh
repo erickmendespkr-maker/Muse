@@ -113,7 +113,13 @@ build_abi() { # $1=arm64|x86_64
   local base="$WORK/$abi"
   local debs="$base/debs"
   local work="$base/pack"
-  local outdir="$PROJ_ROOT/app/src/main/jniLibs/$abi"
+  local abi_dir
+  case "$abi" in
+    arm64) abi_dir="arm64-v8a" ;;
+    x86_64) abi_dir="x86_64" ;;
+    *) echo "Unsupported ABI: $abi" >&2; exit 1 ;;
+  esac
+  local outdir="$PROJ_ROOT/app/src/main/jniLibs/$abi_dir"
 
   echo "== [$abi] 下载 =="
   mkdir -p "$debs"
