@@ -111,7 +111,7 @@ fetch_deb() { # $1=包 key $2=abi $3=目标文件
       fallback_path=$(python3 - "$index_file" "$pkg_name" "$index_arch" <<'PYINDEX'
 import lzma, sys
 index, package, arch = sys.argv[1:]
-for paragraph in lzma.open(index, 'rt', encoding='utf-8').read().split('\\n\\n'):
+for paragraph in lzma.open(index, 'rt', encoding='utf-8').read().split(chr(10) * 2):
     fields = dict(line.split(': ', 1) for line in paragraph.splitlines() if ': ' in line and not line.startswith(' '))
     if fields.get('Package') == package and fields.get('Architecture') in (arch, 'all'):
         print(fields.get('Filename', ''))
