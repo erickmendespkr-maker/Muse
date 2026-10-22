@@ -99,7 +99,7 @@ fetch_deb() { # $1=包 key $2=abi $3=目标文件
       local index_arch="$2"
       [ "$index_arch" != "arm64" ] || index_arch="aarch64"
       [ "$index_arch" != "all" ] || index_arch="aarch64"
-      local index_file="$WORK/Packages-${index_arch}.xz"
+      local index_file="$WORK/Packages-${index_arch}.gz"
       if [ ! -s "$index_file" ]; then
         curl -fSL --retry 2 --connect-timeout 20 -o "$index_file" "https://packages.termux.dev/apt/termux-main/dists/stable/main/binary-${index_arch}/Packages.gz"
       fi
