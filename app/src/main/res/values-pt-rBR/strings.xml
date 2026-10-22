@@ -1,17 +1,17 @@
 <resources>
     <!-- App -->
-    <string name="app_name">Muse</string>
+    <string name="app_name">Denise</string>
     <!-- Splash -->
 
     <!-- Widget -->
-    <string name="widget_description">Início rápido do bate-papo do Muse</string>
+    <string name="widget_description">Início rápido do bate-papo do Denise</string>
     <string name="widget_new_session">Novo bate-papo</string>
     <string name="widget_recent_sessions">Bate-papos recentes</string>
     <!-- P3-16: 4x2 chat widget -->
     <string name="widget_chat_description">Mostrar a resposta mais recente da IA</string>
     <string name="widget_chat_no_content">Nenhuma conversa ainda, toque para começar</string>
-    <string name="widget_launcher_title">Muse</string>
-    <string name="widget_launcher_open">Abrir Muse</string>
+    <string name="widget_launcher_title">Denise</string>
+    <string name="widget_launcher_open">Abrir Denise</string>
 
     <!-- Bottom navigation -->
 
@@ -263,7 +263,7 @@
     <string name="chat_tool_run_item_title">Tarefa %1$d</string>
     <string name="chat_tool_run_steps">%1$d etapas</string>
     <string name="chat_tool_runs_title">Histórico de tarefas</string>
-    <string name="diagnostic_export_subject">Informações de diagnóstico do Muse</string>
+    <string name="diagnostic_export_subject">Informações de diagnóstico do Denise</string>
     <string name="diagnostic_export_title">Exportar informações de diagnóstico</string>
     <string name="memory_graph_ai_enhance_desc">Usa IA para identificar relações entre memórias, como causa e contradição. Mais preciso, mas pode gerar custos por conexão.</string>
     <string name="memory_graph_ai_enhance_title">Aprimorar relações com IA</string>
@@ -283,7 +283,7 @@
     <string name="memory_graph_rebuild_started">Reconstruindo conexões…</string>
     <string name="memory_graph_settings_title">Configurações do mapa de memórias</string>
     <string name="notif_chat_pending_approval_text">%1$s precisa da sua confirmação</string>
-    <string name="notif_chat_pending_approval_title">Muse aguarda sua aprovação</string>
+    <string name="notif_chat_pending_approval_title">Denise aguarda sua aprovação</string>
     <string name="notif_memory_desc">Permite organizar notificações recebidas, como entregas, compromissos e contas, e registrar essas informações na memória. As notificações podem conter dados pessoais.</string>
     <string name="notif_memory_title">Memória de notificações</string>
     <string name="settings_agent_all_day_subtitle">Permite mensagens a qualquer hora, inclusive durante o período de silêncio</string>
