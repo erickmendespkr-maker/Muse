@@ -37,7 +37,7 @@ WORK="${MUSE_RUNTIME_WORK:-/tmp/muse-runtime-pack}"
 TERMUX_BASE="https://packages.termux.dev/apt/termux-main/pool/main"
 
 # ─── 版本锁定 ───────────────────────────────────────────────────────────────
-NODE_VER="24.18.0-1"
+NODE_VER="24.18.0-2"
 LIBCXX_VER="30"
 OPENSSL_VER="1%3A3.6.3"   # URL 中 ':' 需转义为 %3A
 CARES_VER="1.34.9"
