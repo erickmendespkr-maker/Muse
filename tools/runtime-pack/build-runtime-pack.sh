@@ -101,7 +101,7 @@ fetch_deb() { # $1=包 key $2=abi $3=目标文件
       [ "$index_arch" != "all" ] || index_arch="aarch64"
       local index_file="$WORK/Packages-${index_arch}.xz"
       if [ ! -s "$index_file" ]; then
-        curl -fSL --retry 2 --connect-timeout 20 -o "$index_file" "https://packages.termux.dev/apt/termux-main/dists/stable/main/binary-${index_arch}/Packages.xz"
+        curl -fSL --retry 2 --connect-timeout 20 -o "$index_file" "https://packages.termux.dev/apt/termux-main/dists/stable/main/binary-${index_arch}/Packages.gz"
       fi
       local pkg_name="$1"
       [ "$pkg_name" != "libcxx" ] || pkg_name="libc++"
@@ -109,9 +109,9 @@ fetch_deb() { # $1=包 key $2=abi $3=目标文件
       [ "$pkg_name" != "libsqlite" ] || pkg_name="libsqlite"
       local fallback_path
       fallback_path=$(python3 - "$index_file" "$pkg_name" "$index_arch" <<'PYINDEX'
-import lzma, sys
+import gzip, sys
 index, package, arch = sys.argv[1:]
-for paragraph in lzma.open(index, 'rt', encoding='utf-8').read().split(chr(10) * 2):
+for paragraph in gzip.open(index, 'rt', encoding='utf-8').read().split(chr(10) * 2):
     fields = dict(line.split(': ', 1) for line in paragraph.splitlines() if ': ' in line and not line.startswith(' '))
     if fields.get('Package') == package and fields.get('Architecture') in (arch, 'all'):
         print(fields.get('Filename', ''))
