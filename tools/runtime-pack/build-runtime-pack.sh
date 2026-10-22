@@ -94,7 +94,36 @@ pkg_url() { # $1=包 key  $2=abi(arm64|x86_64|all)
 fetch_deb() { # $1=包 key $2=abi $3=目标文件
   if [ ! -f "$3" ]; then
     echo "  下载 $1 ($2) ..."
-    curl -fSL --retry 3 --connect-timeout 20 -o "$3" "$(pkg_url "$1" "$2")"
+    if ! curl -fSL --retry 2 --connect-timeout 20 -o "$3" "$(pkg_url "$1" "$2")"; then
+      echo "  Pinned package unavailable; checking the signed-repository package index for $1 ($2) ..." >&2
+      local index_arch="$2"
+      [ "$index_arch" != "arm64" ] || index_arch="aarch64"
+      [ "$index_arch" != "all" ] || index_arch="aarch64"
+      local index_file="$WORK/Packages-${index_arch}.xz"
+      if [ ! -s "$index_file" ]; then
+        curl -fSL --retry 2 --connect-timeout 20 -o "$index_file" "https://packages.termux.dev/apt/termux-main/dists/stable/main/binary-${index_arch}/Packages.xz"
+      fi
+      local pkg_name="$1"
+      [ "$pkg_name" != "libcxx" ] || pkg_name="libc++"
+      [ "$pkg_name" != "cares" ] || pkg_name="c-ares"
+      [ "$pkg_name" != "libsqlite" ] || pkg_name="libsqlite"
+      local fallback_path
+      fallback_path=$(python3 - "$index_file" "$pkg_name" "$index_arch" <<'PYINDEX'
+import lzma, sys
+index, package, arch = sys.argv[1:]
+for paragraph in lzma.open(index, 'rt', encoding='utf-8').read().split('\\n\\n'):
+    fields = dict(line.split(': ', 1) for line in paragraph.splitlines() if ': ' in line and not line.startswith(' '))
+    if fields.get('Package') == package and fields.get('Architecture') in (arch, 'all'):
+        print(fields.get('Filename', ''))
+        break
+PYINDEX
+)
+      if [ -z "$fallback_path" ]; then
+        echo "!! Package $pkg_name not found in Termux index" >&2
+        return 1
+      fi
+      curl -fSL --retry 2 --connect-timeout 20 -o "$3" "https://packages.termux.dev/apt/termux-main/$fallback_path"
+    fi
   fi
 }
 
