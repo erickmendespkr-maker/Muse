@@ -11,7 +11,9 @@ on:
       - '.github/workflows/ptbr-apk.yml'
       - 'app/src/main/res/**'
       - 'app/src/main/java/io/zer0/muse/intent/**'
+      - 'app/src/main/java/io/zer0/muse/auth/**'
       - 'app/src/test/java/io/zer0/muse/intent/**'
+      - 'app/src/test/java/io/zer0/muse/auth/**'
       - 'ci/script/check_ptbr_resources.py'
       - 'ci/script/check_android_16kb.py'
       - 'gradle/libs.versions.toml'
@@ -82,8 +84,8 @@ jobs:
           test -f app/src/main/assets/muse-python-assets.zip
       - name: Prepare Gradle
         run: chmod +x ./gradlew
-      - name: Test Tasker security guard (JVM)
-        run: ./gradlew :app:testDebugUnitTest --tests 'io.zer0.muse.intent.TaskerTriggerGuardTest' -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
+      - name: Test Tasker and OAuth security guards (JVM)
+        run: ./gradlew :app:testDebugUnitTest --tests 'io.zer0.muse.intent.TaskerTriggerGuardTest' --tests 'io.zer0.muse.auth.OAuthCallbackGuardTest' -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
       - name: Compile ARM64 debug APK
         run: ./gradlew :app:assembleDebug -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
       - name: Verify ARM64 native libraries support 16 KiB pages
