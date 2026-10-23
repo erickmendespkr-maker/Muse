@@ -8,20 +8,26 @@ on:
     branches:
       - audit/security-ptbr
     paths:
+      # All modules and inputs that can affect the Android APK must trigger CI.
+      # Docs, screenshots and release metadata remain excluded to save runner minutes.
       - '.github/workflows/ptbr-apk.yml'
-      - 'app/src/main/res/**'
-      - 'app/src/debug/AndroidManifest.xml'
-      - 'app/src/main/java/io/zer0/muse/intent/**'
-      - 'app/src/main/java/io/zer0/muse/auth/**'
-      - 'app/src/test/java/io/zer0/muse/intent/**'
-      - 'app/src/test/java/io/zer0/muse/auth/**'
-      - 'ci/script/check_ptbr_resources.py'
-      - 'ci/script/check_android_16kb.py'
-      - 'ci/script/check_debug_apk_signatures.sh'
-      - 'ci/script/check_debug_exported_activities.py'
-      - 'gradle/libs.versions.toml'
-      - 'tools/runtime-pack/build-runtime-pack.sh'
-      - 'tools/python-pack/build-python-pack.sh'
+      - 'app/**'
+      - 'ai/**'
+      - 'common/**'
+      - 'accessibility/**'
+      - 'accessibility-provider/**'
+      - 'material3/**'
+      - 'memory/**'
+      - 'virtual-display-protocol/**'
+      - 'virtual-display-server/**'
+      - 'web/**'
+      - 'tools/**'
+      - 'ci/**'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradle.properties'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
   workflow_dispatch:
 
 permissions:

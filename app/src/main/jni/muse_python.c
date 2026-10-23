@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 
     /* RTLD_NOW: 立刻解析全部符号，尽早暴露缺失依赖；
      * RTLD_GLOBAL: 让 libpython 的符号全局可见，供后续 dlopen 的
-     *   lib-dynload/*.so C 扩展（其 DT_NEEDED 指向 libpython3.14.so）复用。 */
+     *   lib-dynload 目录下的 .so C 扩展（其 DT_NEEDED 指向 libpython3.14.so）复用。 */
     void *handle = dlopen(lib_path, RTLD_NOW | RTLD_GLOBAL);
     if (handle == NULL) {
         fprintf(stderr, "muse_python: 加载 %s 失败: %s\n", lib_path, dlerror());
