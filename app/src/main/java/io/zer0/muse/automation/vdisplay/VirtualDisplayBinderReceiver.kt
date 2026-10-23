@@ -10,7 +10,8 @@ import io.zer0.muse.vdproto.VdContract
  * v2.2.1 虚拟屏:服务端 Binder 手递手接收器(exported=true)。
  *
  * 服务端进程以 shell uid 运行,经 AMS 广播(定向到本应用包)送出 binder。
- * 只有 action 与宿主包名同时匹配才接受,防止第三方伪造。
+ * action 与宿主包名只是路由检查,并不能认证广播发送者。
+ * 真正的认证由注册表校验本次启动的随机 handoff token,且仅允许使用一次。
  */
 class VirtualDisplayBinderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
