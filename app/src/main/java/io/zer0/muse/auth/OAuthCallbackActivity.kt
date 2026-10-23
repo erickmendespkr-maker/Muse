@@ -42,19 +42,23 @@ class OAuthCallbackActivity : Activity() {
             Logger.w(TAG, "OAuthCallbackActivity 收到空 data,忽略")
             return
         }
+        // Explicit intents bypass Android's intent-filter matching; validate here too.
+        if (data.scheme != "io.zer0.muse" || data.host != "oauth" || data.path != "/callback") {
+            Logger.w(TAG, "OAuth 回调 URI 不匹配,忽略")
+            return
+        }
         val code = data.getQueryParameter("code").orEmpty()
         val state = data.getQueryParameter("state").orEmpty()
-        // 优先处理 error 参数(用户拒绝授权 / 服务端错误)
+        // Never log the URI, authorization code, state or provider-supplied description.
         val error = data.getQueryParameter("error")
         if (!error.isNullOrBlank()) {
-            val desc = data.getQueryParameter("error_description").orEmpty()
-            Logger.w(TAG, "OAuth 回调报错: error=$error, desc=$desc")
-            // 直接置 OAuthManager 为 ERROR 态,让挂起的 launchAuthorizationCodeFlow 返回失败
-            OAuthManager.cancel()
+            if (!OAuthManager.rejectAuthorizationCodeFlow(state)) {
+                Logger.w(TAG, "OAuth 错误回调未通过 state 校验,忽略")
+            }
             return
         }
         if (code.isBlank() || state.isBlank()) {
-            Logger.w(TAG, "OAuth 回调缺 code/state,忽略: $data")
+            Logger.w(TAG, "OAuth 回调缺 code/state,忽略")
             return
         }
         OAuthManager.completeAuthorizationCodeFlow(code, state)
