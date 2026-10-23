@@ -18,6 +18,8 @@ NO_INDEX = 0xFFFFFFFF
 TARGETS = {
     "leakcanary.internal.activity.LeakActivity",
     "androidx.compose.ui.tooling.PreviewActivity",
+    "leakcanary.internal.activity.LeakLauncherActivity",
+    "androidx.activity.ComponentActivity",
 }
 
 

@@ -12,5 +12,15 @@
             android:name="androidx.compose.ui.tooling.PreviewActivity"
             android:exported="false"
             tools:replace="android:exported" />
+        <!-- These debug-only launch surfaces are merged from libraries.
+             Keep them available to in-app tools/instrumentation, not other apps. -->
+        <activity-alias
+            android:name="leakcanary.internal.activity.LeakLauncherActivity"
+            android:exported="false"
+            tools:replace="android:exported" />
+        <activity
+            android:name="androidx.activity.ComponentActivity"
+            android:exported="false"
+            tools:replace="android:exported" />
     </application>
 </manifest>
