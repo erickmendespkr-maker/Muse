@@ -140,6 +140,11 @@ unpack_deb() { # $1=deb 文件 $2=输出目录
 # ─── 单 ABI 组装 ────────────────────────────────────────────────────────────
 build_abi() { # $1=arm64|x86_64
   local abi="$1"
+  local -A abi_filemap=()
+  local map_key
+  for map_key in "${!FILEMAP[@]}"; do
+    abi_filemap["$map_key"]="${FILEMAP[$map_key]}"
+  done
   local base="$WORK/$abi"
   local debs="$base/debs"
   local work="$base/pack"
@@ -162,10 +167,22 @@ build_abi() { # $1=arm64|x86_64
     [ -d "$base/unpacked/$key" ] || unpack_deb "$debs/$key.deb" "$base/unpacked/$key"
   done
 
+  # Refuse missing or ambiguous SQLite libraries after a Termux version fallback.
+  local -a sqlite_candidates=()
+  mapfile -d '' -t sqlite_candidates < <(find "$base/unpacked/libsqlite" -type f -name 'libsqlite3*.so*' -print0)
+  if [ "${#sqlite_candidates[@]}" -ne 1 ]; then
+    echo "!! [$abi] Expected exactly one SQLite library, found ${#sqlite_candidates[@]}" >&2
+    exit 1
+  fi
+  local sqlite_actual="${sqlite_candidates[0]}"
+  unset 'abi_filemap[libsqlite3.53.4.so]'
+  abi_filemap["$(basename "$sqlite_actual")"]="libsqlite3.so"
+  echo "  SQLite shared library: $(basename "$sqlite_actual")"
+
   echo "== [$abi] 收集源文件 =="
   rm -rf "$work"; mkdir -p "$work"
   local missing=0
-  for f in "${!FILEMAP[@]}"; do
+  for f in "${!abi_filemap[@]}"; do
     local src
     src=$(find "$base/unpacked" -name "$f" -type f | head -1 || true)
     if [ -z "$src" ]; then echo "  !! 未找到 $f"; missing=1; continue; fi
@@ -179,8 +196,8 @@ build_abi() { # $1=arm64|x86_64
 
   echo "== [$abi] patchelf 处理 =="
   (cd "$work"
-    for f in "${!FILEMAP[@]}"; do
-      patchelf --set-soname "${FILEMAP[$f]}" "$f"
+    for f in "${!abi_filemap[@]}"; do
+      patchelf --set-soname "${abi_filemap[$f]}" "$f"
     done
     for f in *; do
       [ -f "$f" ] || continue
@@ -189,10 +206,16 @@ build_abi() { # $1=arm64|x86_64
         [ "$old" = "$new" ] && continue
         patchelf --replace-needed "$old" "$new" "$f" 2>/dev/null || true
       done
+      # Rewrite versioned SQLite dependencies to the bundled SONAME.
+      while IFS= read -r needed; do
+        if [[ "$needed" == libsqlite3* && "$needed" != "libsqlite3.so" ]]; then
+          patchelf --replace-needed "$needed" "libsqlite3.so" "$f"
+        fi
+      done < <(patchelf --print-needed "$f")
       patchelf --set-rpath '$ORIGIN' "$f"
     done
-    for f in "${!FILEMAP[@]}"; do
-      new="${FILEMAP[$f]}"
+    for f in "${!abi_filemap[@]}"; do
+      new="${abi_filemap[$f]}"
       [ "$f" != "$new" ] && mv "$f" "$new"
     done
   )
