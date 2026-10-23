@@ -171,8 +171,28 @@ build_abi() { # $1=arm64|x86_64
   local -a sqlite_candidates=()
   mapfile -d '' -t sqlite_candidates < <(find "$base/unpacked/libsqlite" -type f -name 'libsqlite3*.so*' -print0)
   if [ "${#sqlite_candidates[@]}" -ne 1 ]; then
-    echo "!! [$abi] Expected exactly one SQLite library, found ${#sqlite_candidates[@]}" >&2
-    exit 1
+    # Termux can ship multiple SQLite ELF files. Select only the unique file
+    # matching the installed package's declared upstream version.
+    local sqlite_version sqlite_upstream sqlite_path sqlite_basename
+    sqlite_version=$(dpkg-deb -f "$debs/libsqlite.deb" Version) || {
+      echo "!! [$abi] Cannot read libsqlite package version" >&2; exit 1;
+    }
+    sqlite_upstream="${sqlite_version#*:}"
+    sqlite_upstream="${sqlite_upstream%%-*}"
+    local -a sqlite_matching=()
+    for sqlite_path in "${sqlite_candidates[@]}"; do
+      sqlite_basename=$(basename "$sqlite_path")
+      if [ "$sqlite_basename" = "libsqlite3.${sqlite_upstream}.so" ] ||
+         [ "$sqlite_basename" = "libsqlite3.so.${sqlite_upstream}" ]; then
+        sqlite_matching+=("$sqlite_path")
+      fi
+    done
+    if [ "${#sqlite_matching[@]}" -ne 1 ]; then
+      echo "!! [$abi] Ambiguous SQLite files for package version $sqlite_version:" >&2
+      printf '  candidate: %s\n' "${sqlite_candidates[@]}" >&2
+      exit 1
+    fi
+    sqlite_candidates=("${sqlite_matching[@]}")
   fi
   local sqlite_actual="${sqlite_candidates[0]}"
   unset 'abi_filemap[libsqlite3.53.4.so]'
