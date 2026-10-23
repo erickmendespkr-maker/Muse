@@ -10,6 +10,7 @@ on:
     paths:
       - '.github/workflows/ptbr-apk.yml'
       - 'app/src/main/res/**'
+      - 'app/src/debug/AndroidManifest.xml'
       - 'app/src/main/java/io/zer0/muse/intent/**'
       - 'app/src/main/java/io/zer0/muse/auth/**'
       - 'app/src/test/java/io/zer0/muse/intent/**'
@@ -17,6 +18,7 @@ on:
       - 'ci/script/check_ptbr_resources.py'
       - 'ci/script/check_android_16kb.py'
       - 'ci/script/check_debug_apk_signatures.sh'
+      - 'ci/script/check_debug_exported_activities.py'
       - 'gradle/libs.versions.toml'
       - 'tools/runtime-pack/build-runtime-pack.sh'
       - 'tools/python-pack/build-python-pack.sh'
@@ -124,6 +126,14 @@ jobs:
           apks=(app/build/outputs/apk/debug/*arm64-v8a*.apk)
           test "${#apks[@]}" -eq 1
           bash ci/script/check_debug_apk_signatures.sh "${apks[0]}"
+      - name: Verify debug diagnostic activities are not exported
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          apks=(app/build/outputs/apk/debug/*arm64-v8a*.apk)
+          test "${#apks[@]}" -eq 1
+          python3 ci/script/check_debug_exported_activities.py "${apks[0]}"
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
