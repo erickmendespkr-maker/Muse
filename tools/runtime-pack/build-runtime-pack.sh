@@ -182,8 +182,9 @@ build_abi() { # $1=arm64|x86_64
     local -a sqlite_matching=()
     for sqlite_path in "${sqlite_candidates[@]}"; do
       sqlite_basename=$(basename "$sqlite_path")
-      if [ "$sqlite_basename" = "libsqlite${sqlite_upstream}.so" ] ||
-         [ "$sqlite_basename" = "libsqlite3.so.${sqlite_upstream}" ]; then
+      # The libsqlite3.<version>.so file is a separate SQLite/Tcl extension;
+      # only the canonical libsqlite3.so.<version> is suitable for Node.
+      if [ "$sqlite_basename" = "libsqlite3.so.${sqlite_upstream}" ]; then
         sqlite_matching+=("$sqlite_path")
       fi
     done
