@@ -91,6 +91,8 @@ jobs:
           test -f "$sdk_root/build-tools/36.0.0/source.properties"
       - name: Check pt-BR resources
         run: python3 ci/script/check_ptbr_resources.py
+      - name: Test pt-BR resource coverage (Python)
+        run: python3 -m unittest discover -s ci/script -p 'test_check_ptbr_resources.py' -v
       - name: Test exported diagnostic activity checker (Python)
         run: python3 -m unittest discover -s ci/script -p 'test_check_debug_exported_activities.py' -v
       - name: Set up Node.js for embedded runtime

@@ -25,9 +25,11 @@ def placeholders(value: str) -> Counter[str]:
 def read_strings(folder: Path) -> tuple[dict[str, str], list[str]]:
     all_strings: dict[str, str] = {}
     errors: list[str] = []
-    paths = sorted(folder.glob("strings*.xml"))
+    # Automation labels live in automation*.xml, outside strings*.xml.
+    # Include both families so missing pt-BR strings cannot silently pass CI.
+    paths = sorted(set(folder.glob("strings*.xml")) | set(folder.glob("automation*.xml")))
     if not paths:
-        return {}, [f"No strings*.xml files in {folder}"]
+        return {}, [f"No strings*.xml or automation*.xml files in {folder}"]
     for path in paths:
         try:
             tree = ET.parse(path)
