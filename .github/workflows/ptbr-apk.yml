@@ -13,6 +13,8 @@ on:
       - 'app/src/main/java/io/zer0/muse/intent/**'
       - 'app/src/test/java/io/zer0/muse/intent/**'
       - 'ci/script/check_ptbr_resources.py'
+      - 'ci/script/check_android_16kb.py'
+      - 'gradle/libs.versions.toml'
       - 'tools/runtime-pack/build-runtime-pack.sh'
       - 'tools/python-pack/build-python-pack.sh'
   workflow_dispatch:
@@ -84,6 +86,14 @@ jobs:
         run: ./gradlew :app:testDebugUnitTest --tests 'io.zer0.muse.intent.TaskerTriggerGuardTest' -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
       - name: Compile ARM64 debug APK
         run: ./gradlew :app:assembleDebug -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
+      - name: Verify ARM64 native libraries support 16 KiB pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          apks=(app/build/outputs/apk/debug/*arm64-v8a*.apk)
+          test "${#apks[@]}" -eq 1
+          python3 ci/script/check_android_16kb.py "${apks[0]}"
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
