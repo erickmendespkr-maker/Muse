@@ -332,7 +332,7 @@ object OAuthManager {
                     // 无 error 但也无 access_token,继续轮询
                 }
                 else -> {
-                    val msg = "OAuth token 轮询失败: ${tokenResp.error} — ${tokenResp.error_description ?: "未知"}"
+                    val msg = "OAuth token 轮询失败: ${OAuthErrorLogGuard.safeCode(tokenResp.error)}"
                     _stateFlow.value = State.ERROR(msg)
                     return Result.failure(IllegalStateException(msg))
                 }
@@ -800,11 +800,12 @@ object OAuthManager {
     /**
      * C-25: 从 token 交换错误响应体中提取 error 字段用于日志。
      * 不记响应体原文 — 原文可能回显 code/redirect_uri 等敏感参数。
+     * 未识别的 error 值归一化为 unrecognized_error,不输出任意服务端内容。
      * 解析失败返回空串(只记 HTTP code)。
      */
     private fun oauthErrorField(body: String): String = runCatching {
         val obj = io.zer0.common.AppJson.parseToJsonElement(body).jsonObject
-        obj["error"]?.jsonPrimitive?.content?.let { ", error=$it" } ?: ""
+        obj["error"]?.jsonPrimitive?.content?.let { ", error=${OAuthErrorLogGuard.safeCode(it)}" } ?: ""
     }.getOrDefault("")
 
     // ── 内部工具 ───────────────────────────────────────────────────────

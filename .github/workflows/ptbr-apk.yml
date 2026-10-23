@@ -104,7 +104,7 @@ jobs:
       - name: Prepare Gradle
         run: chmod +x ./gradlew
       - name: Test Tasker and OAuth security guards (JVM)
-        run: ./gradlew :app:testDebugUnitTest --tests 'io.zer0.muse.intent.TaskerTriggerGuardTest' --tests 'io.zer0.muse.auth.OAuthCallbackGuardTest' -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
+        run: ./gradlew :app:testDebugUnitTest --tests 'io.zer0.muse.intent.TaskerTriggerGuardTest' --tests 'io.zer0.muse.auth.OAuthCallbackGuardTest' --tests 'io.zer0.muse.auth.OAuthErrorLogGuardTest' -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
       - name: Compile ARM64 debug APK
         run: ./gradlew :app:assembleDebug -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
       - name: Verify ARM64 native libraries support 16 KiB pages
