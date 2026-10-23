@@ -59,8 +59,27 @@ jobs:
           set -o pipefail
           test "$result" -eq 0
       - name: Install Android components
+        shell: bash
         run: |
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973" "cmake;3.22.1"
+          set -euo pipefail
+          packages=("platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973" "cmake;3.22.1")
+          # SDK/NDK downloads occasionally fail with a truncated ZIP on hosted runners.
+          # Retry the same pinned versions; never continue after an unsuccessful install.
+          for attempt in 1 2 3; do
+            if sdkmanager --install "${packages[@]}"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Android SDK component installation failed after 3 attempts"
+              exit 1
+            fi
+            echo "::warning::Android SDK download failed on attempt $attempt; retrying"
+            sleep 20
+          done
+          sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          test -f "$sdk_root/ndk/27.0.12077973/source.properties"
+          test -f "$sdk_root/platforms/android-36/source.properties"
+          test -f "$sdk_root/build-tools/36.0.0/source.properties"
       - name: Check pt-BR resources
         run: python3 ci/script/check_ptbr_resources.py
       - name: Set up Node.js for embedded runtime
