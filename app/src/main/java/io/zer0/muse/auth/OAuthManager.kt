@@ -612,6 +612,18 @@ object OAuthManager {
     }
 
     /**
+     * Reject an OAuth error callback only when it carries the current flow's
+     * unpredictable state. An exported Activity must never call cancel()
+     * for an unsolicited or malformed intent (cross-app denial of service).
+     * The awaiting coroutine handles cleanup and updates the UI error state.
+     */
+    fun rejectAuthorizationCodeFlow(state: String): Boolean {
+        val pending = pendingAuthCodeFlow.value ?: return false
+        if (!OAuthCallbackGuard.matchesPendingState(state, pending.state)) return false
+        return pending.deferred.completeExceptionally(OAuthCancelledException())
+    }
+
+    /**
      * 等待授权回调但不允许损坏/缺失的 deep link 永久挂起 OAuth 流程。
      * 外部协程取消仍然向上传播，不被转换成普通超时。
      */
