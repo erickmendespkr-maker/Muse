@@ -182,7 +182,7 @@ build_abi() { # $1=arm64|x86_64
     local -a sqlite_matching=()
     for sqlite_path in "${sqlite_candidates[@]}"; do
       sqlite_basename=$(basename "$sqlite_path")
-      if [ "$sqlite_basename" = "libsqlite3.${sqlite_upstream}.so" ] ||
+      if [ "$sqlite_basename" = "libsqlite${sqlite_upstream}.so" ] ||
          [ "$sqlite_basename" = "libsqlite3.so.${sqlite_upstream}" ]; then
         sqlite_matching+=("$sqlite_path")
       fi
