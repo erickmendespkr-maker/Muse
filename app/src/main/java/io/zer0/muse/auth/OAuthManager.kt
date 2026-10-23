@@ -601,7 +601,7 @@ object OAuthManager {
             return false
         }
         if (state != pending.state) {
-            Logger.w(TAG, "OAuth state 不匹配: expected=${pending.state.take(4)}***, got=${state.take(4)}***")
+            Logger.w(TAG, "OAuth state 不匹配,忽略回调")
             return false
         }
         if (code.isBlank()) {
@@ -869,7 +869,7 @@ object OAuthManager {
                         body,
                     )
                     if (token.access_token.isBlank()) {
-                        Logger.w(TAG, "token 响应无 access_token: error=${token.error}, desc=${token.error_description}")
+                        Logger.w(TAG, "token 响应无 access_token")
                         return@use null
                     }
                     token
