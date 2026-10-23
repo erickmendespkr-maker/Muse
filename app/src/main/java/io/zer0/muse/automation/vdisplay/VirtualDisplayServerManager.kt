@@ -101,7 +101,9 @@ class VirtualDisplayServerManager(
         val binder =
             VirtualDisplayBinderRegistry.current()
                 ?: run {
-                    clearCachedDisplayId()
+                    // During startup the binder may not have arrived yet. Keep the
+                    // pending one-time handoff token so the broadcast can authenticate.
+                    clearCachedDisplayId(preservePendingHandoff = true)
                     return null
                 }
         val proxy = IVirtualDisplayService.Stub.asInterface(binder)
@@ -121,12 +123,14 @@ class VirtualDisplayServerManager(
         }
     }
 
-    private fun clearCachedDisplayId() {
+    private fun clearCachedDisplayId(preservePendingHandoff: Boolean = false) {
         if (lastDisplayId >= 0) {
             lastDisplayId = -1
         }
-        handoffToken = null
-        VirtualDisplayBinderRegistry.clearHandoffToken()
+        if (!preservePendingHandoff) {
+            handoffToken = null
+            VirtualDisplayBinderRegistry.clearHandoffToken()
+        }
     }
 
     /** 以当前可用档位(Shizuku 优先、Root 兜底)执行一条命令(部署/启动共用)。 */

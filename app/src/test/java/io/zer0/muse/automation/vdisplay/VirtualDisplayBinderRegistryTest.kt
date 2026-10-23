@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -57,6 +58,22 @@ class VirtualDisplayBinderRegistryTest {
         assertTrue(VirtualDisplayBinderRegistry.accept(mockk<IBinder>(), "first"))
         VirtualDisplayBinderRegistry.setExpectedHandoffToken("second")
         assertTrue(VirtualDisplayBinderRegistry.accept(mockk<IBinder>(), "second"))
+    }
+
+
+    @Test
+    fun pollingBeforeHandoffDoesNotRevokePendingToken() {
+        val manager = VirtualDisplayServerManager(
+            mockk<android.content.Context>(relaxed = true),
+            mockk<io.zer0.muse.automation.core.AutomationManager>(relaxed = true),
+        )
+        VirtualDisplayBinderRegistry.setExpectedHandoffToken("pending-startup")
+        repeat(3) { assertNull(manager.existingLiveProxy()) }
+        val binder = mockk<IBinder> {
+            every { isBinderAlive } returns true
+        }
+        assertTrue(VirtualDisplayBinderRegistry.accept(binder, "pending-startup"))
+        assertSame(binder, VirtualDisplayBinderRegistry.current())
     }
 
     @Test
