@@ -4,7 +4,7 @@
     <!-- Splash -->
 
     <!-- Widget -->
-    <string name="widget_description">Acesso rápido ao chat do Denise</string>
+    <string name="widget_description">Acesso rápido ao chat da Denise</string>
     <string name="widget_new_session">Novo bate-papo</string>
     <string name="widget_recent_sessions">Bate-papos recentes</string>
     <!-- P3-16: 4x2 chat widget -->
@@ -263,7 +263,7 @@
     <string name="chat_tool_run_item_title">Tarefa %1$d</string>
     <string name="chat_tool_run_steps">%1$d etapas</string>
     <string name="chat_tool_runs_title">Histórico de tarefas</string>
-    <string name="diagnostic_export_subject">Informações de diagnóstico do Denise</string>
+    <string name="diagnostic_export_subject">Informações de diagnóstico da Denise</string>
     <string name="diagnostic_export_title">Exportar informações de diagnóstico</string>
     <string name="memory_graph_ai_enhance_desc">Usa IA para identificar relações entre memórias, como causa e contradição. Mais preciso, mas pode gerar custos por conexão.</string>
     <string name="memory_graph_ai_enhance_title">Aprimorar relações com IA</string>
