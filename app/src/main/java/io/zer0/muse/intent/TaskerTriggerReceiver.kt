@@ -58,17 +58,16 @@ class TaskerTriggerReceiver : BroadcastReceiver() {
                 // AUD-20261011-TASKER-ABUSE: 三道防线 —— 开关默认关闭 + 长度上限 + 限频。
                 // 本 Receiver 是 exported 且无 permission 的入口,任意应用都能发;
                 // 不设防即可循环触发计费 LLM(已验证无法间接触发工具执行,故缺口是成本滥用)。
-                val decision = TaskerTriggerGuard.evaluate(
+                // Reserve the rate-limit slot atomically: concurrent broadcasts must
+                // not both pass before either has updated lastAcceptedAt.
+                val decision = reserveTriggerSlot(
                     enabled = settings?.taskerTriggerEnabledFlow?.first() ?: false,
                     promptLength = prompt.length,
-                    nowMs = System.currentTimeMillis(),
-                    lastAcceptedAtMs = lastAcceptedAt,
                 )
                 if (decision != TaskerTriggerGuard.Decision.ACCEPTED) {
                     Logger.w(TAG, "Tasker 触发被拒绝: $decision")
                     return@launch
                 }
-                lastAcceptedAt = System.currentTimeMillis()
                 runTrigger(context.applicationContext, prompt)
             } catch (e: Exception) {
                 Logger.e(TAG, "Tasker 触发执行失败: ${e.message}", e)
@@ -157,7 +156,28 @@ class TaskerTriggerReceiver : BroadcastReceiver() {
          * 因此限频状态放在 companion;进程重启后重置属可接受口径
          * (配合默认关闭的持久化开关,不构成绕过)。
          */
-        @Volatile
         private var lastAcceptedAt: Long? = null
+
+        /**
+         * Check and reserve in one critical section to prevent parallel broadcasts
+         * from bypassing the minimum interval. Do not hold the lock during LLM work.
+         */
+        @Synchronized
+        private fun reserveTriggerSlot(
+            enabled: Boolean,
+            promptLength: Int,
+        ): TaskerTriggerGuard.Decision {
+            val nowMs = System.currentTimeMillis()
+            val decision = TaskerTriggerGuard.evaluate(
+                enabled = enabled,
+                promptLength = promptLength,
+                nowMs = nowMs,
+                lastAcceptedAtMs = lastAcceptedAt,
+            )
+            if (decision == TaskerTriggerGuard.Decision.ACCEPTED) {
+                lastAcceptedAt = nowMs
+            }
+            return decision
+        }
     }
 }

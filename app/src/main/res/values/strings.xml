@@ -1,18 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- App -->
-    <string name="app_name">Muse</string>
+    <string name="app_name">Denise</string>
     <!-- 启动页 -->
 
     <!-- 桌面小部件 -->
-    <string name="widget_description">快捷启动 Muse 对话</string>
+    <string name="widget_description">快捷启动 Denise 对话</string>
     <string name="widget_new_session">新对话</string>
     <string name="widget_recent_sessions">最近会话</string>
     <!-- P3-16: 4x2 对话小部件 -->
     <string name="widget_chat_description">显示最近一条 AI 回复</string>
     <string name="widget_chat_no_content">暂无对话,点击开始</string>
     <!-- F-25: 桌面启动小部件 -->
-    <string name="widget_launcher_title">Muse</string>
-    <string name="widget_launcher_open">打开 Muse</string>
+    <string name="widget_launcher_title">Denise</string>
+    <string name="widget_launcher_open">打开 Denise</string>
 
     <!-- 底部导航 -->
 

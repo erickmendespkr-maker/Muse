@@ -1,17 +1,17 @@
 <resources>
     <!-- App -->
-    <string name="app_name">Musa</string>
+    <string name="app_name">Muse</string>
     <!-- Splash -->
 
     <!-- Widget -->
-    <string name="widget_description">Início rápido do bate-papo do Muse</string>
+    <string name="widget_description">Acesso rápido ao chat do Muse</string>
     <string name="widget_new_session">Novo bate-papo</string>
     <string name="widget_recent_sessions">Bate-papos recentes</string>
     <!-- P3-16: 4x2 chat widget -->
     <string name="widget_chat_description">Mostrar a resposta mais recente da IA</string>
     <string name="widget_chat_no_content">Nenhuma conversa ainda, toque para começar</string>
-    <string name="widget_launcher_title">Musa</string>
-    <string name="widget_launcher_open">Abrir Musa</string>
+    <string name="widget_launcher_title">Muse</string>
+    <string name="widget_launcher_open">Abrir Muse</string>
 
     <!-- Bottom navigation -->
 
@@ -40,12 +40,12 @@
     <string name="proxy_disabled">Desabilitado</string>
     <string name="proxy_type">Tipo</string>
     <string name="proxy_type_http">HTTP</string>
-    <string name="proxy_type_socks5">MEIAS5</string>
-    <string name="proxy_host">Hospedar</string>
+    <string name="proxy_type_socks5">SOCKS5</string>
+    <string name="proxy_host">Servidor</string>
     <string name="proxy_port">Porta</string>
     <string name="proxy_username">Nome de usuário</string>
     <string name="proxy_password">Senha</string>
-    <string name="proxy_restart_hint">Reinicie o aplicativo para entrar em vigor</string>
+    <string name="proxy_restart_hint">Reinicie o aplicativo para aplicar as alterações</string>
     <string name="action_save">Salvar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_delete">Excluir</string>
@@ -53,20 +53,20 @@
     <string name="action_close">Fechar</string>
     <string name="action_more">Mais</string>
     <string name="action_send">Enviar</string>
-    <string name="action_copy">Cópia</string>
+    <string name="action_copy">Copiar</string>
     <string name="action_share">Compartilhar</string>
     <string name="action_expand">Expandir</string>
-    <string name="action_collapse">Colapso</string>
+    <string name="action_collapse">Recolher</string>
 
     <!-- Quote reply -->
     <string name="message_action_quote">Citar</string>
-    <string name="quote_label_user">Cotar usuário</string>
-    <string name="quote_label_assistant">Assistente de cotação</string>
-    <string name="quote_clear">Cancelar cotação</string>
+    <string name="quote_label_user">Citando usuário</string>
+    <string name="quote_label_assistant">Citando assistente</string>
+    <string name="quote_clear">Remover citação</string>
 
     <!-- Edit message sheet -->
     <string name="edit_message_title">Editar mensagem</string>
-    <string name="edit_message_content_label">Contente</string>
+    <string name="edit_message_content_label">Conteúdo</string>
 
     <!-- Recording / speech recognition status -->
 <string name="voice_release_to_recognize">Solte para reconhecer · deslize para cima para cancelar</string>
@@ -75,7 +75,7 @@
 <string name="voice_reconnecting">Erro de rede, reconectando…</string>
 
 <!-- 前端修复 (i18n-6): stop button a11y label on voice message bar -->
-<string name="voice_stop_recording">Stop recording</string>
+<string name="voice_stop_recording">Parar gravação</string>
     <string name="voice_conversation_cd_idle">Toque para iniciar a conversa</string>
     <string name="voice_conversation_cd_listening">Gravando, toque para interromper</string>
     <string name="voice_conversation_cd_thinking">IA pensando, toque para interromper</string>
@@ -219,4 +219,105 @@
     <string name="action_clear">Limpar</string>
     <string name="action_select_text">Selecionar texto</string>
     <string name="chat_select_text_hint">Mantenha o texto pressionado para selecionar e copiar</string>
+    <!-- Complementos de tradução PT-BR -->
+    <string name="err_reply_truncated">(Resposta cortada devido ao limite de tamanho)</string>
+    <string name="action_retry">Tentar novamente</string>
+    <string name="common_load_failed">Falha ao carregar</string>
+    <string name="action_undo">Desfazer</string>
+    <string name="chat_unarchived">Conversa desarquivada</string>
+    <string name="agent_dm_empty">Ainda não há mensagens privadas</string>
+    <string name="agent_dm_mark_all_read">Marcar todas como lidas</string>
+    <string name="agent_dm_title">Mensagens privadas dos agentes</string>
+    <string name="agent_dm_unread_count">%d não lidas</string>
+    <string name="branch_next">Próxima versão</string>
+    <string name="branch_previous">Versão anterior</string>
+    <string name="memory_llm_empty_response">O modelo %1$s retornou uma resposta vazia (sem texto nem raciocínio). Falha ao consolidar a memória.</string>
+    <string name="schedule_discard">Descartar</string>
+    <string name="schedule_unsaved_message">Você tem alterações não salvas. Deseja descartá-las?</string>
+    <string name="schedule_unsaved_title">Descartar alterações?</string>
+    <string name="tool_approval_allow_this_session">Permitir nesta sessão</string>
+    <string name="tool_approval_always_approve">Permitir sempre</string>
+    <string name="tool_approval_approve">Aprovar</string>
+    <string name="tool_approval_write_summary">Prestes a gravar em %1$s (%2$d caracteres)</string>
+    <string name="tool_approval_advanced_details">Detalhes avançados</string>
+    <string name="tool_approval_confirm_deny">Confirmar recusa</string>
+    <string name="tool_approval_deny">Recusar</string>
+    <string name="tool_approval_deny_reason">Motivo da recusa (opcional)</string>
+    <string name="tool_approval_title">Solicitação de ferramenta</string>
+    <string name="voice_connecting">Conectando ao serviço de reconhecimento…</string>
+    <string name="voice_conversation_change_voice">Alterar voz</string>
+    <string name="voice_conversation_close_cd">Fechar conversa por voz</string>
+    <string name="voice_conversation_idle_hint">Toque no botão abaixo para começar</string>
+    <string name="voice_conversation_idle_tap_hint">Fale para reconhecer e enviar automaticamente; as respostas serão lidas em voz alta</string>
+    <string name="voice_conversation_listening">Ouvindo…</string>
+    <string name="voice_conversation_no_voices">Nenhuma voz do sistema encontrada. Instale um mecanismo de síntese de voz nas configurações do aparelho.</string>
+    <string name="voice_conversation_pick_voice_title">Escolher voz</string>
+    <string name="voice_conversation_speaking">Falando…</string>
+    <string name="voice_conversation_state_idle">Toque para começar</string>
+    <string name="voice_conversation_state_listening">Ouvindo</string>
+    <string name="voice_conversation_state_speaking">Falando</string>
+    <string name="voice_conversation_state_thinking">Pensando</string>
+    <string name="voice_conversation_thinking">Pensando…</string>
+    <!-- Missing pt-BR resources (aligned with default locale). -->
+    <string name="chat_token_estimated_cost">Custo estimado do histórico: $%1$s (com base no preço atual do modelo)</string>
+    <string name="chat_tool_run_item_title">Tarefa %1$d</string>
+    <string name="chat_tool_run_steps">%1$d etapas</string>
+    <string name="chat_tool_runs_title">Histórico de tarefas</string>
+    <string name="diagnostic_export_subject">Informações de diagnóstico do Muse</string>
+    <string name="diagnostic_export_title">Exportar informações de diagnóstico</string>
+    <string name="memory_graph_ai_enhance_desc">Usa IA para identificar relações entre memórias, como causa e contradição. Mais preciso, mas pode gerar custos por conexão.</string>
+    <string name="memory_graph_ai_enhance_title">Aprimorar relações com IA</string>
+    <string name="memory_graph_frequency_manual">Somente manualmente</string>
+    <string name="memory_graph_frequency_on_open">Ao abrir o mapa de memórias</string>
+    <string name="memory_graph_frequency_session_end">Ao final de cada conversa</string>
+    <string name="memory_graph_frequency_title">Frequência de atualização das conexões</string>
+    <string name="memory_graph_link_action">Conectar manualmente</string>
+    <string name="memory_graph_link_pick_target">Toque em outro nó para criar a conexão</string>
+    <string name="memory_graph_link_type_causes">Causa</string>
+    <string name="memory_graph_link_type_contradicts">Contradiz</string>
+    <string name="memory_graph_link_type_part_of">Faz parte de</string>
+    <string name="memory_graph_link_type_related">Relacionado</string>
+    <string name="memory_graph_link_type_title">Selecione o tipo de relação</string>
+    <string name="memory_graph_rebuild_hint">Recalcula as conexões de todas as memórias no intervalo atual, ignorando as que já existem.</string>
+    <string name="memory_graph_rebuild_now">Reconstruir conexões agora</string>
+    <string name="memory_graph_rebuild_started">Reconstruindo conexões…</string>
+    <string name="memory_graph_settings_title">Configurações do mapa de memórias</string>
+    <string name="notif_chat_pending_approval_text">%1$s precisa da sua confirmação</string>
+    <string name="notif_chat_pending_approval_title">Muse aguarda sua aprovação</string>
+    <string name="notif_memory_desc">Permite organizar notificações recebidas, como entregas, compromissos e contas, e registrar essas informações na memória. As notificações podem conter dados pessoais.</string>
+    <string name="notif_memory_title">Memória de notificações</string>
+    <string name="settings_agent_all_day_subtitle">Permite mensagens a qualquer hora, inclusive durante o período de silêncio</string>
+    <string name="settings_agent_all_day_title">Disponível o dia todo</string>
+    <string name="settings_agent_pace_extreme">Muito frequente</string>
+    <string name="settings_agent_pace_extreme_desc">O assistente decide quando enviar mensagens, sem limite de frequência</string>
+    <string name="settings_backup_export_session">Exportar uma conversa</string>
+    <string name="settings_backup_export_session_count">%1$d mensagens</string>
+    <string name="settings_backup_export_session_empty">Nenhuma conversa disponível para exportação</string>
+    <string name="settings_backup_export_session_failed">Falha ao exportar a conversa: %1$s</string>
+    <string name="settings_backup_export_session_search">Buscar pelo título da conversa</string>
+    <string name="settings_backup_export_session_subtitle">Escolha uma conversa para exportar o histórico completo em JSON</string>
+    <string name="settings_backup_export_session_success">Conversa exportada: %1$d mensagens</string>
+    <string name="settings_backup_export_session_title">Selecione a conversa para exportar</string>
+    <string name="settings_chat_fast_reply">Modo de resposta rápida</string>
+    <string name="settings_chat_fast_reply_subtitle">Ignora a busca de memórias relacionadas a cada resposta para reduzir a latência. As memórias de longo prazo continuam disponíveis.</string>
+    <string name="settings_chat_quick_actions">Ações rápidas das mensagens</string>
+    <string name="settings_chat_quick_actions_desc">Escolha os atalhos exibidos abaixo das mensagens</string>
+    <string name="settings_memory_conversation_recall">Permitir consulta ao histórico completo</string>
+    <string name="settings_memory_conversation_recall_subtitle">Permite que resumos e extração de fatos consultem o histórico completo, em vez de apenas as mensagens carregadas</string>
+    <string name="settings_provider_test_success_chat_only">Conexão bem-sucedida (a API não lista modelos; verificação feita por mensagem de teste)</string>
+    <string name="settings_rag_embedding_provider_hint">Nem todos os provedores oferecem modelos de embeddings. Após configurar, teste a conexão antes de reconstruir o índice.</string>
+    <string name="settings_rag_embedding_test">Testar embeddings</string>
+    <string name="settings_rag_embedding_test_failed">Falha no teste: %1$s</string>
+    <string name="settings_rag_embedding_test_ok">Conexão bem-sucedida: %1$d dimensões em %2$d ms</string>
+    <string name="settings_rag_embedding_testing">Testando…</string>
+    <string name="settings_rag_onnx_clear">Limpar</string>
+    <string name="settings_rag_onnx_hint">Selecione um arquivo de modelo .onnx e um vocab.txt na mesma pasta. O aplicativo copiará os arquivos para seu armazenamento privado.</string>
+    <string name="settings_rag_onnx_model_empty">Nenhum modelo selecionado — busca por palavras-chave em uso</string>
+    <string name="settings_rag_onnx_model_title">Modelo de embeddings ONNX</string>
+    <string name="settings_rag_onnx_pick">Selecionar arquivo do modelo</string>
+    <string name="settings_rag_onnx_pick_failed">Falha ao importar: %1$s</string>
+    <string name="settings_rag_onnx_picked">Modelo importado</string>
+    <string name="settings_rag_onnx_section">Modelo local (opcional)</string>
+    <string name="settings_slider_input_confirm">Confirmar</string>
+    <string name="settings_slider_input_hint">Digite um valor</string>
 </resources>

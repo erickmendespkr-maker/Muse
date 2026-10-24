@@ -20,18 +20,25 @@ object VirtualDisplayBinderRegistry {
         binder = value
     }
 
+    @Synchronized
     fun setExpectedHandoffToken(token: String) {
         expectedHandoffToken = token.takeIf { it.isNotBlank() }
     }
 
+    @Synchronized
     fun clearHandoffToken() {
         expectedHandoffToken = null
     }
 
-    /** Accept only a binder that proves knowledge of the current launch token. */
+    /**
+     * Accept only the first binder carrying the current launch token.
+     * Consume the token atomically so a replay cannot replace a live binder.
+     */
+    @Synchronized
     fun accept(value: IBinder, handoffToken: String?): Boolean {
         val expected = expectedHandoffToken ?: return false
         if (handoffToken.isNullOrBlank() || handoffToken != expected) return false
+        expectedHandoffToken = null
         binder = value
         return true
     }

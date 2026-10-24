@@ -1,0 +1,152 @@
+# Build on the isolated translation branch; main remains unchanged.
+name: Muse PT-BR APK
+
+# A workflow_dispatch-only workflow cannot be manually started until it exists
+# on the default branch. Branch-scoped push enables an immediate isolated build.
+on:
+  push:
+    branches:
+      - audit/security-ptbr
+    paths:
+      # All modules and inputs that can affect the Android APK must trigger CI.
+      # Docs, screenshots and release metadata remain excluded to save runner minutes.
+      - '.github/workflows/ptbr-apk.yml'
+      - 'app/**'
+      - 'ai/**'
+      - 'common/**'
+      - 'accessibility/**'
+      - 'accessibility-provider/**'
+      - 'material3/**'
+      - 'memory/**'
+      - 'virtual-display-protocol/**'
+      - 'virtual-display-server/**'
+      - 'web/**'
+      - 'tools/**'
+      - 'ci/**'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradle.properties'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ptbr-debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Set up Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "ANDROID_HOME=${ANDROID_HOME:-}" 
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-}"
+          command -v sdkmanager || true
+          if ! command -v sdkmanager >/dev/null 2>&1; then
+            SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+            SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+            test -x "$SDKMANAGER" || { echo "Android sdkmanager missing at $SDKMANAGER" >&2; exit 1; }
+            export PATH="$SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+            echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          fi
+          set +o pipefail
+          yes | sdkmanager --licenses >/dev/null
+          result=${PIPESTATUS[1]}
+          set -o pipefail
+          test "$result" -eq 0
+      - name: Install Android components
+        shell: bash
+        run: |
+          set -euo pipefail
+          packages=("platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973" "cmake;3.22.1")
+          # SDK/NDK downloads occasionally fail with a truncated ZIP on hosted runners.
+          # Retry the same pinned versions; never continue after an unsuccessful install.
+          for attempt in 1 2 3; do
+            if sdkmanager --install "${packages[@]}"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Android SDK component installation failed after 3 attempts"
+              exit 1
+            fi
+            echo "::warning::Android SDK download failed on attempt $attempt; retrying"
+            sleep 20
+          done
+          sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          test -f "$sdk_root/ndk/27.0.12077973/source.properties"
+          test -f "$sdk_root/platforms/android-36/source.properties"
+          test -f "$sdk_root/build-tools/36.0.0/source.properties"
+      - name: Check pt-BR resources
+        run: python3 ci/script/check_ptbr_resources.py
+      - name: Test pt-BR resource coverage (Python)
+        run: python3 -m unittest discover -s ci/script -p 'test_check_ptbr_resources.py' -v
+      - name: Test exported diagnostic activity checker (Python)
+        run: python3 -m unittest discover -s ci/script -p 'test_check_debug_exported_activities.py' -v
+      - name: Set up Node.js for embedded runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build Web Host UI assets
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+      - name: Build embedded runtime assets
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y patchelf
+          bash tools/runtime-pack/build-runtime-pack.sh arm64
+          bash tools/python-pack/build-python-pack.sh arm64
+          test -f app/src/main/jniLibs/arm64-v8a/libmuse_node.so
+          test -f app/src/main/jniLibs/arm64-v8a/libpython3.14.so
+          test -f app/src/main/assets/muse-runtime-assets.zip
+          test -f app/src/main/assets/muse-python-assets.zip
+      - name: Prepare Gradle
+        run: chmod +x ./gradlew
+      - name: Test Tasker and OAuth security guards (JVM)
+        run: ./gradlew :app:testDebugUnitTest --tests 'io.zer0.muse.intent.TaskerTriggerGuardTest' --tests 'io.zer0.muse.auth.OAuthCallbackGuardTest' --tests 'io.zer0.muse.auth.OAuthErrorLogGuardTest' --tests 'io.zer0.muse.automation.vdisplay.VirtualDisplayBinderRegistryTest' -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
+      - name: Compile ARM64 debug APK
+        run: ./gradlew :app:assembleDebug -PnoUniversal -PreleaseSkipKeystoreCheck=true --stacktrace
+      - name: Verify ARM64 native libraries support 16 KiB pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          apks=(app/build/outputs/apk/debug/*arm64-v8a*.apk)
+          test "${#apks[@]}" -eq 1
+          python3 ci/script/check_android_16kb.py "${apks[0]}"
+      - name: Verify APK and embedded provider signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          apks=(app/build/outputs/apk/debug/*arm64-v8a*.apk)
+          test "${#apks[@]}" -eq 1
+          bash ci/script/check_debug_apk_signatures.sh "${apks[0]}"
+      - name: Verify debug diagnostic activities are not exported
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          apks=(app/build/outputs/apk/debug/*arm64-v8a*.apk)
+          test "${#apks[@]}" -eq 1
+          python3 ci/script/check_debug_exported_activities.py "${apks[0]}"
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: muse-ptbr-debug-apks
+          path: app/build/outputs/apk/debug/*arm64-v8a*.apk
+          if-no-files-found: error

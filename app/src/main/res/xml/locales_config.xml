@@ -12,7 +12,7 @@
     - ko (한국어)
     - ru (Русский)
     - es (Español)
-    - pt-rBR (Português do Brasil)
+    - pt-BR (Português do Brasil; tag BCP 47)
 
   注意:新增语言时需同步:
     1. 在此文件添加 <locale android:name="..."/>
@@ -26,5 +26,5 @@
     <locale android:name="ko" />
     <locale android:name="ru" />
     <locale android:name="es" />
-    <locale android:name="pt-rBR" />
+    <locale android:name="pt-BR" />
 </locale-config>

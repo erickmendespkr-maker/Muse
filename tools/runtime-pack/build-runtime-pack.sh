@@ -37,14 +37,14 @@ WORK="${MUSE_RUNTIME_WORK:-/tmp/muse-runtime-pack}"
 TERMUX_BASE="https://packages.termux.dev/apt/termux-main/pool/main"
 
 # ─── 版本锁定 ───────────────────────────────────────────────────────────────
-NODE_VER="24.18.0-1"
+NODE_VER="24.18.0-2"
 LIBCXX_VER="30"
 OPENSSL_VER="1%3A3.6.3"   # URL 中 ':' 需转义为 %3A
-CARES_VER="1.34.8"
+CARES_VER="1.34.9"
 ICU_VER="78.3"
 SQLITE_VER="3.53.4"
 ZLIB_VER="1.3.2"
-NPM_VER="11.20.0"
+NPM_VER="11.21.1"
 
 # ─── 文件映射：源实体文件名 -> 输出名（jniLibs 只接受 lib*.so 命名） ────────
 declare -A FILEMAP=(
@@ -77,6 +77,7 @@ declare -A NEEDMAP=(
 # ─── Termux 包 URL 解析 ─────────────────────────────────────────────────────
 pkg_url() { # $1=包 key  $2=abi(arm64|x86_64|all)
   local key="$1" abi="$2"
+  [ "$abi" != "arm64" ] || abi="aarch64"
   case "$key" in
     nodejs-lts) echo "$TERMUX_BASE/n/nodejs-lts/nodejs-lts_${NODE_VER}_${abi}.deb" ;;
     libcxx)     echo "$TERMUX_BASE/libc/libc%2B%2B/libc%2B%2B_${LIBCXX_VER}_${abi}.deb" ;;
@@ -93,7 +94,36 @@ pkg_url() { # $1=包 key  $2=abi(arm64|x86_64|all)
 fetch_deb() { # $1=包 key $2=abi $3=目标文件
   if [ ! -f "$3" ]; then
     echo "  下载 $1 ($2) ..."
-    curl -sSL --retry 3 --connect-timeout 20 -o "$3" "$(pkg_url "$1" "$2")"
+    if ! curl -fSL --retry 2 --connect-timeout 20 -o "$3" "$(pkg_url "$1" "$2")"; then
+      echo "  Pinned package unavailable; checking the signed-repository package index for $1 ($2) ..." >&2
+      local index_arch="$2"
+      [ "$index_arch" != "arm64" ] || index_arch="aarch64"
+      [ "$index_arch" != "all" ] || index_arch="aarch64"
+      local index_file="$WORK/Packages-${index_arch}.gz"
+      if [ ! -s "$index_file" ]; then
+        curl -fSL --retry 2 --connect-timeout 20 -o "$index_file" "https://packages.termux.dev/apt/termux-main/dists/stable/main/binary-${index_arch}/Packages.gz"
+      fi
+      local pkg_name="$1"
+      [ "$pkg_name" != "libcxx" ] || pkg_name="libc++"
+      [ "$pkg_name" != "cares" ] || pkg_name="c-ares"
+      [ "$pkg_name" != "libsqlite" ] || pkg_name="libsqlite"
+      local fallback_path
+      fallback_path=$(python3 - "$index_file" "$pkg_name" "$index_arch" <<'PYINDEX'
+import gzip, sys
+index, package, arch = sys.argv[1:]
+for paragraph in gzip.open(index, 'rt', encoding='utf-8').read().split(chr(10) * 2):
+    fields = dict(line.split(': ', 1) for line in paragraph.splitlines() if ': ' in line and not line.startswith(' '))
+    if fields.get('Package') == package and fields.get('Architecture') in (arch, 'all'):
+        print(fields.get('Filename', ''))
+        break
+PYINDEX
+)
+      if [ -z "$fallback_path" ]; then
+        echo "!! Package $pkg_name not found in Termux index" >&2
+        return 1
+      fi
+      curl -fSL --retry 2 --connect-timeout 20 -o "$3" "https://packages.termux.dev/apt/termux-main/$fallback_path"
+    fi
   fi
 }
 
@@ -110,10 +140,21 @@ unpack_deb() { # $1=deb 文件 $2=输出目录
 # ─── 单 ABI 组装 ────────────────────────────────────────────────────────────
 build_abi() { # $1=arm64|x86_64
   local abi="$1"
+  local -A abi_filemap=()
+  local map_key
+  for map_key in "${!FILEMAP[@]}"; do
+    abi_filemap["$map_key"]="${FILEMAP[$map_key]}"
+  done
   local base="$WORK/$abi"
   local debs="$base/debs"
   local work="$base/pack"
-  local outdir="$PROJ_ROOT/app/src/main/jniLibs/$abi"
+  local abi_dir
+  case "$abi" in
+    arm64) abi_dir="arm64-v8a" ;;
+    x86_64) abi_dir="x86_64" ;;
+    *) echo "Unsupported ABI: $abi" >&2; exit 1 ;;
+  esac
+  local outdir="$PROJ_ROOT/app/src/main/jniLibs/$abi_dir"
 
   echo "== [$abi] 下载 =="
   mkdir -p "$debs"
@@ -126,10 +167,43 @@ build_abi() { # $1=arm64|x86_64
     [ -d "$base/unpacked/$key" ] || unpack_deb "$debs/$key.deb" "$base/unpacked/$key"
   done
 
+  # Refuse missing or ambiguous SQLite libraries after a Termux version fallback.
+  local -a sqlite_candidates=()
+  mapfile -d '' -t sqlite_candidates < <(find "$base/unpacked/libsqlite" -type f -name 'libsqlite3*.so*' -print0)
+  if [ "${#sqlite_candidates[@]}" -ne 1 ]; then
+    # Termux can ship multiple SQLite ELF files. Select only the unique file
+    # matching the installed package's declared upstream version.
+    local sqlite_version sqlite_upstream sqlite_path sqlite_basename
+    sqlite_version=$(dpkg-deb -f "$debs/libsqlite.deb" Version) || {
+      echo "!! [$abi] Cannot read libsqlite package version" >&2; exit 1;
+    }
+    sqlite_upstream="${sqlite_version#*:}"
+    sqlite_upstream="${sqlite_upstream%%-*}"
+    local -a sqlite_matching=()
+    for sqlite_path in "${sqlite_candidates[@]}"; do
+      sqlite_basename=$(basename "$sqlite_path")
+      # The libsqlite3.<version>.so file is a separate SQLite/Tcl extension;
+      # only the canonical libsqlite3.so.<version> is suitable for Node.
+      if [ "$sqlite_basename" = "libsqlite3.so.${sqlite_upstream}" ]; then
+        sqlite_matching+=("$sqlite_path")
+      fi
+    done
+    if [ "${#sqlite_matching[@]}" -ne 1 ]; then
+      echo "!! [$abi] Ambiguous SQLite files for package version $sqlite_version:" >&2
+      printf '  candidate: %s\n' "${sqlite_candidates[@]}" >&2
+      exit 1
+    fi
+    sqlite_candidates=("${sqlite_matching[@]}")
+  fi
+  local sqlite_actual="${sqlite_candidates[0]}"
+  unset 'abi_filemap[libsqlite3.53.4.so]'
+  abi_filemap["$(basename "$sqlite_actual")"]="libsqlite3.so"
+  echo "  SQLite shared library: $(basename "$sqlite_actual")"
+
   echo "== [$abi] 收集源文件 =="
   rm -rf "$work"; mkdir -p "$work"
   local missing=0
-  for f in "${!FILEMAP[@]}"; do
+  for f in "${!abi_filemap[@]}"; do
     local src
     src=$(find "$base/unpacked" -name "$f" -type f | head -1 || true)
     if [ -z "$src" ]; then echo "  !! 未找到 $f"; missing=1; continue; fi
@@ -143,8 +217,8 @@ build_abi() { # $1=arm64|x86_64
 
   echo "== [$abi] patchelf 处理 =="
   (cd "$work"
-    for f in "${!FILEMAP[@]}"; do
-      patchelf --set-soname "${FILEMAP[$f]}" "$f"
+    for f in "${!abi_filemap[@]}"; do
+      patchelf --set-soname "${abi_filemap[$f]}" "$f"
     done
     for f in *; do
       [ -f "$f" ] || continue
@@ -153,10 +227,16 @@ build_abi() { # $1=arm64|x86_64
         [ "$old" = "$new" ] && continue
         patchelf --replace-needed "$old" "$new" "$f" 2>/dev/null || true
       done
+      # Rewrite versioned SQLite dependencies to the bundled SONAME.
+      while IFS= read -r needed; do
+        if [[ "$needed" == libsqlite3* && "$needed" != "libsqlite3.so" ]]; then
+          patchelf --replace-needed "$needed" "libsqlite3.so" "$f"
+        fi
+      done < <(patchelf --print-needed "$f")
       patchelf --set-rpath '$ORIGIN' "$f"
     done
-    for f in "${!FILEMAP[@]}"; do
-      new="${FILEMAP[$f]}"
+    for f in "${!abi_filemap[@]}"; do
+      new="${abi_filemap[$f]}"
       [ "$f" != "$new" ] && mv "$f" "$new"
     done
   )
